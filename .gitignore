@@ -1,0 +1,71 @@
+# =========================
+# Python / Virtualenv
+# =========================
+__pycache__/
+*.py[cod]
+*$py.class
+
+.venv/
+venv/
+env/
+ENV/
+pip-wheel-metadata/
+*.egg-info/
+dist/
+build/
+
+# =========================
+# OS / Editor junk
+# =========================
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# =========================
+# Logs / cache / reports
+# =========================
+*.log
+logs/
+.cache/
+pytest_cache/
+.mypy_cache/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# =========================
+# Streamlit
+# =========================
+.streamlit/secrets.toml
+.streamlit/config.toml
+
+# =========================
+# Environment & secrets
+# =========================
+.env
+.env.*
+*.env
+
+# =========================
+# Data & artifacts RAG
+# =========================
+# Jika nanti kamu punya folder ini, jangan commit:
+data/processed/
+data/chunks/
+data/vectorstore/
+data/temp/
+
+# =========================
+# Jupyter / notebooks (kalau dipakai)
+# =========================
+.ipynb_checkpoints/
+*.ipynb
+
+# =========================
+# OS-specific
+# =========================
+ehthumbs.db
+Desktop.ini

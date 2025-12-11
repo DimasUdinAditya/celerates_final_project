@@ -16,10 +16,11 @@ def create_rag_chain():
     vectorstore = qdrant_manager.get_vectorstore()
 
     retriever = vectorstore.as_retriever(
+        search_type="mmr", # Menggunakan MMR untuk diversifikasi hasil
         search_kwargs={"k": Settings.TOP_K}
     )
 
-    # Chain sekarang mengharapkan input dict: {"input": ..., "chat_history": ...}
+    # Buat RAG chain
     rag_chain = (
         {
             "context": lambda d: format_docs(retriever.invoke(d["input"])),

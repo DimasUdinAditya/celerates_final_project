@@ -1,8 +1,10 @@
 import sys
 from pathlib import Path
+
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 import streamlit as st
+
 from src.chains.retrieval_chain import create_rag_chain
 from src.utils.validators import validate_query
 from app.components.sidebar import render_sidebar
@@ -11,8 +13,20 @@ from app.components.chat_interface import render_chat_interface
 st.set_page_config(
     page_title="Starbucks VA",
     page_icon="https://upload.wikimedia.org/wikipedia/en/thumb/d/d3/Starbucks_Corporation_Logo_2011.svg/1200px-Starbucks_Corporation_Logo_2011.svg.png",
-    layout="wide"
+    layout="wide",
 )
+
+
+def is_quota_error(exc: Exception) -> bool:
+    """Deteksi error yang berkaitan dengan limit / quota / rate limit."""
+    text = str(exc).lower()
+    return (
+        "resource_exhausted" in text
+        or "quota" in text
+        or "rate limit" in text
+        or "429" in text
+    )
+
 
 def initialize_chain():
     """Initialize the RAG chain"""
@@ -21,50 +35,54 @@ def initialize_chain():
             try:
                 st.session_state.qa_chain = create_rag_chain()
             except Exception as e:
-                st.error(f"Error initializing chatbot: {str(e)}")
+                st.error(
+                    "Maaf, sistem chatbot gagal dimuat. Silakan coba beberapa saat lagi."
+                )
+                # Log teknis untuk pengembangan
                 st.exception(e)
                 st.stop()
 
+
 def main():
     """Main application"""
-    
+
     render_sidebar()
 
     st.markdown(
         "<h1>Chat dengan Barista Virtual Starbucks</h1>",
         unsafe_allow_html=True,
     )
-    
+
     st.markdown(
         "<p style='font-size: 0.95rem;'>"
         "Tanyakan menu, promo, atau informasi gerai, dan saya akan membantu Anda."
         "</p>",
         unsafe_allow_html=True,
     )
-    
+
     initialize_chain()
-    
+
     user_input = render_chat_interface()
-    
+
     if user_input:
         is_valid, message = validate_query(user_input)
-        
+
         if not is_valid:
             st.error(message)
             return
-        
+
         st.session_state.messages.append({"role": "user", "content": user_input})
-        
+
         with st.chat_message("user"):
             st.markdown(user_input)
-        
+
         with st.chat_message("assistant"):
             with st.spinner("Mencari jawaban..."):
                 try:
                     response = st.session_state.qa_chain.invoke({"input": user_input})
-                    
+
                     answer = response.get("answer", "Maaf, tidak ada jawaban tersedia.")
-                    
+
                     st.markdown(
                         f"""
                         <div style="
@@ -83,7 +101,7 @@ def main():
                         """,
                         unsafe_allow_html=True,
                     )
-                    
+
                     # Show source documents (development purpose)
                     source_docs = response.get("source_documents", [])
                     if source_docs:
@@ -92,14 +110,33 @@ def main():
                                 st.markdown(f"**Sumber {i}:**")
                                 st.text(doc.page_content[:200] + "...")
                                 st.markdown("---")
-                    
-                    st.session_state.messages.append({"role": "assistant", "content": answer})
-                    
+
+                    st.session_state.messages.append(
+                        {"role": "assistant", "content": answer}
+                    )
+
                 except Exception as e:
-                    error_msg = f"Maaf, terjadi kesalahan: {str(e)}"
-                    st.error(error_msg)
-                    st.exception(e)
-                    st.session_state.messages.append({"role": "assistant", "content": error_msg})
+                    # Bedakan quota vs error lain berdasarkan isi pesan
+                    if is_quota_error(e):
+                        user_msg = (
+                            "Maaf, Stella tidak dapat memproses permintaan saat ini karena "
+                            "batas pemakaian layanan AI sudah tercapai.\n\n"
+                            "Silakan coba lagi nanti atau hubungi admin jika masalah terus berlanjut."
+                        )
+                    else:
+                        user_msg = (
+                            "Maaf, terjadi kesalahan saat memproses permintaan Anda. "
+                            "Silakan coba lagi beberapa saat lagi."
+                        )
+
+                    st.error(user_msg)
+                    # Log teknis untuk debugging (bisa dimatikan di produksi)
+                    #st.exception(e)
+
+                    st.session_state.messages.append(
+                        {"role": "assistant", "content": user_msg}
+                    )
+
 
 if __name__ == "__main__":
     main()

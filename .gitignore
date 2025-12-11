@@ -40,7 +40,6 @@ htmlcov/
 # Streamlit
 # =========================
 .streamlit/secrets.toml
-.streamlit/config.toml
 
 # =========================
 # Environment & secrets

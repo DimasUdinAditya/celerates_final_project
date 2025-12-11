@@ -68,3 +68,8 @@ data/temp/
 # =========================
 ehthumbs.db
 Desktop.ini
+
+# =========================
+# Test files
+# =========================
+.test_collection.py

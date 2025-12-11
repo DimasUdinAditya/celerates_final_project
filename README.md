@@ -39,7 +39,6 @@ streamlit run app/streamlit_app.py
 - `app/` - Streamlit UI
 - `scripts/` - Utility scripts
 - `data/` - Dokumen PDF
-- `tests/` - Unit tests
 
 ## Teknologi
 

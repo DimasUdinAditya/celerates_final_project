@@ -32,7 +32,7 @@ def render_sidebar():
             - Tanyakan tentang menu  
             - Tanyakan tentang promo  
             - Tanyakan tentang lokasi  
-            - Tanyakan tentang program loyalitas  
+            - Tanyakan tentang kebijakan dan SOP 
             """
         )
 

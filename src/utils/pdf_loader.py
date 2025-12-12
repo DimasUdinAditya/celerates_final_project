@@ -1,5 +1,5 @@
 from langchain_community.document_loaders import PyPDFLoader
-from langchain_text_splitters import RecursiveCharacterTextSplitter  # ← Yang ini diubah
+from langchain_text_splitters import RecursiveCharacterTextSplitter 
 from src.config.settings import Settings
 
 class PDFLoader:
